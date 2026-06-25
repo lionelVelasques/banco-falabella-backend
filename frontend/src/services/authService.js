@@ -1,15 +1,6 @@
-// ============================================================
-// CONFIGURACIÓN DE LA API
-// ============================================================
-
-// Usar la variable de entorno o localhost por defecto
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://banco-falabella-backend-4309.onrender.com/api';
 
 console.log('🔵 API_URL configurada:', API_URL);
-
-// ============================================================
-// FUNCIONES DE LOCALSTORAGE
-// ============================================================
 
 const getToken = () => localStorage.getItem('bf_token');
 
@@ -39,13 +30,8 @@ const removeAuth = () => {
 };
 
 const isAuthenticated = () => {
-    const token = getToken();
-    return !!token;
+    return !!getToken();
 };
-
-// ============================================================
-// HEADERS PARA PETICIONES AUTENTICADAS
-// ============================================================
 
 const headers = () => {
     const token = getToken();
@@ -55,12 +41,7 @@ const headers = () => {
     };
 };
 
-// ============================================================
-// SERVICIO DE AUTENTICACIÓN
-// ============================================================
-
 export const authService = {
-    // ----- REGISTRO -----
     async register(form) {
         try {
             console.log('📝 Registrando usuario...');
@@ -85,7 +66,6 @@ export const authService = {
         }
     },
 
-    // ----- LOGIN -----
     async login(email, contraseña) {
         try {
             console.log('🔑 Iniciando sesión...');
@@ -110,31 +90,23 @@ export const authService = {
         }
     },
 
-    // ----- LOGOUT -----
     logout() {
         removeAuth();
         window.location.href = '/login';
     },
 
-    // ----- OBTENER USUARIO -----
     getUsuario() {
         return getUsuario();
     },
 
-    // ----- VERIFICAR AUTENTICACIÓN -----
     isAuthenticated() {
         return isAuthenticated();
     },
 
-    // ----- OBTENER TOKEN -----
     getToken() {
         return getToken();
     },
 };
-
-// ============================================================
-// API CLIENT - PARA PETICIONES AUTENTICADAS
-// ============================================================
 
 export const api = {
     async request(method, path, body = null) {
@@ -158,7 +130,6 @@ export const api = {
             
             const res = await fetch(url, options);
             
-            // Si es 401, redirigir al login
             if (res.status === 401) {
                 console.warn('⚠️ Sesión expirada');
                 removeAuth();

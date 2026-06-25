@@ -1,16 +1,18 @@
 const bcrypt = require('bcryptjs');
-const { pool } = require('../config');
+const { pool } = require('../../config');
 
 const getMisTarjetas = async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, numero_enmascarado, linea_credito, saldo_utilizado, saldo_disponible,
+      `SELECT id, numero_enmascarado, linea_credito, saldo_utilizado, 
+              (linea_credito - saldo_utilizado) AS saldo_disponible,
               tasa_interes, fecha_cierre, fecha_vencimiento, fecha_expiracion, estado, created_at
        FROM tarjetas_cmr WHERE usuario_id = $1`,
       [req.user.id]
     );
     res.json({ tarjetas: result.rows });
   } catch (err) {
+    console.error('Error en getMisTarjetas:', err.message);
     res.status(500).json({ error: 'Error al obtener tarjetas.' });
   }
 };
@@ -48,7 +50,9 @@ const solicitarTarjeta = async (req, res) => {
        (cuenta_id, usuario_id, numero_tarjeta, numero_enmascarado, fecha_expiracion, cvv_hash,
         linea_credito, saldo_utilizado, tasa_interes)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 0, 3.99)
-       RETURNING id, numero_enmascarado, linea_credito, saldo_disponible, fecha_expiracion, estado`,
+       RETURNING id, numero_enmascarado, linea_credito, 
+                 (linea_credito - saldo_utilizado) AS saldo_disponible, 
+                 fecha_expiracion, estado`,
       [cuenta_id, req.user.id, numeroTarjeta, numeroEnmascarado, fechaExpiracion, cvvHash, linea_credito || 2000]
     );
 
@@ -64,7 +68,7 @@ const solicitarTarjeta = async (req, res) => {
       cvv,
     });
   } catch (err) {
-    console.error(err.message);
+    console.error('Error en solicitarTarjeta:', err.message);
     res.status(500).json({ error: 'Error al crear tarjeta.' });
   }
 };
@@ -123,7 +127,7 @@ const pagarTarjeta = async (req, res) => {
     res.json({ message: `Pago de S/ ${montoNum.toFixed(2)} realizado exitosamente.` });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error(err.message);
+    console.error('Error en pagarTarjeta:', err.message);
     res.status(500).json({ error: 'Error al procesar el pago.' });
   } finally {
     client.release();
@@ -147,6 +151,7 @@ const getMovimientosTarjeta = async (req, res) => {
     );
     res.json({ movimientos: result.rows });
   } catch (err) {
+    console.error('Error en getMovimientosTarjeta:', err.message);
     res.status(500).json({ error: 'Error al obtener movimientos de tarjeta.' });
   }
 };

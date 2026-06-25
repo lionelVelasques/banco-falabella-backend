@@ -1,4 +1,4 @@
-const { pool } = require('../config');
+const { pool } = require('../../config');
 
 const realizarTransferencia = async (req, res) => {
   const { cuenta_origen_id, numero_cuenta_destino, monto, descripcion } = req.body;
@@ -68,7 +68,7 @@ const realizarTransferencia = async (req, res) => {
       `INSERT INTO transacciones 
        (cuenta_origen_id, cuenta_destino_id, tipo, monto, moneda, descripcion, estado)
        VALUES ($1, $2, 'transferencia', $3, $4, $5, 'completada')
-       RETURNING id, referencia, monto, created_at`,
+       RETURNING id, monto, created_at`,
       [cuentaOrigen.id, cuentaDestino.id, montoNum, cuentaOrigen.moneda, descripcion || 'Transferencia']
     );
 
@@ -119,7 +119,7 @@ const getHistorial = async (req, res) => {
 
     res.json({ transferencias: result.rows });
   } catch (err) {
-    console.error(err.message);
+    console.error('Error en getHistorial:', err.message);
     res.status(500).json({ error: 'Error al obtener historial.' });
   }
 };

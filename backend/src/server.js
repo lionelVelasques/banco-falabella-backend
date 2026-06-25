@@ -16,23 +16,22 @@ const PORT = process.env.PORT || 5000;
 // CONFIGURACIÓN DE SEGURIDAD
 // ============================================================
 
-// Trust proxy para rate limiting en Render
 app.set('trust proxy', 1);
 
-// 1. Helmet - Cabeceras de seguridad
+// 1. Helmet
 app.use(helmet());
 
-// 2. CORS - Permitir todos los orígenes para pruebas
+// 2. CORS - Permitir todos los orígenes
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// 3. Rate limiting global
+// 3. Rate limiting
 const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // 100 peticiones por IP
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: { message: 'Demasiadas peticiones. Intenta nuevamente en 15 minutos.' }
 });
 app.use('/api', globalLimiter);
@@ -66,7 +65,8 @@ app.get('/', (req, res) => {
             creditos: '/api/creditos',
             analytics: '/api/analytics',
             recuperaciones: '/api/recuperaciones',
-            exportar: '/api/exportar'
+            exportar: '/api/exportar',
+            'pagos-servicios': '/api/pagos-servicios'
         }
     });
 });

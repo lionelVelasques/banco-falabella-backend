@@ -12,6 +12,7 @@ const creditoController = require('../controllers/creditoController');
 const analyticsController = require('../controllers/analyticsController');
 const recuperacionesController = require('../controllers/recuperacionesController');
 const exportController = require('../controllers/exportController');
+const pagosServiciosController = require('../controllers/pagosServiciosController');
 
 // ============================================================
 // RUTAS PÚBLICAS
@@ -52,13 +53,13 @@ router.post('/tarjetas', tarjetaController.solicitarTarjeta);
 router.post('/tarjetas/:id/pagar', tarjetaController.pagarTarjeta);
 router.get('/tarjetas/:id/movimientos', tarjetaController.getMovimientosTarjeta);
 
-// ----- PRÉSTAMOS (cliente) -----
+// ----- PRÉSTAMOS -----
 router.get('/prestamos', prestamoController.getMisPrestamos);
 router.post('/prestamos/solicitar', prestamoController.solicitarPrestamo);
 router.get('/prestamos/:id/cuotas', prestamoController.getCuotas);
 router.post('/prestamos/:id/pagar', prestamoController.pagarPrestamo);
 
-// ----- CRÉDITOS (cliente) -----
+// ----- CRÉDITOS -----
 router.post('/creditos/solicitar', creditoController.solicitarCredito);
 router.get('/creditos/mis-solicitudes', creditoController.getMisSolicitudes);
 
@@ -66,22 +67,22 @@ router.get('/creditos/mis-solicitudes', creditoController.getMisSolicitudes);
 router.get('/analytics/gastos-por-mes', analyticsController.gastosPorMes);
 router.get('/analytics/resumen', analyticsController.resumenFinanciero);
 
-// ----- EXPORTAR -----
+// ----- PAGOS DE SERVICIOS -----
+router.post('/pagos-servicios/pagar', pagosServiciosController.pagarServicio);
+router.get('/pagos-servicios/historial', pagosServiciosController.getHistorialPagos);
+
+// ----- EXPORTAR PDF -----
 router.get('/exportar/movimientos-pdf', exportController.exportarMovimientosPDF);
 
 // ============================================================
 // RUTAS DE ADMINISTRADOR
 // ============================================================
-
-// ----- CRÉDITOS (admin) -----
 router.get('/creditos/pendientes', isAdmin, creditoController.getPendientes);
 router.get('/creditos/pendientes-comite', isAdmin, creditoController.getPendientesComite);
 router.post('/creditos/:id/aprobar', isAdmin, creditoController.aprobarCredito);
 
-// ----- PRÉSTAMOS (admin) -----
 router.post('/prestamos/:id/aprobar', isAdmin, prestamoController.aprobarPrestamo);
 
-// ----- RECUPERACIONES (admin) -----
 router.get('/recuperaciones/mora', isAdmin, recuperacionesController.getMora);
 router.get('/recuperaciones/kpis', isAdmin, recuperacionesController.getKPIs);
 router.get('/recuperaciones/:id/gestiones', isAdmin, recuperacionesController.getGestiones);
@@ -89,7 +90,6 @@ router.post('/recuperaciones/:id/gestion', isAdmin, recuperacionesController.reg
 router.post('/recuperaciones/:id/derivar-judicial', isAdmin, recuperacionesController.derivarJudicial);
 router.post('/recuperaciones/:id/castigar', isAdmin, recuperacionesController.castigar);
 
-// ----- VALIDACIÓN DE CASOS (admin) -----
 router.get('/creditos/validar-caso/:caso_numero', isAdmin, creditoController.validarCaso);
 router.get('/creditos/validar-todos', isAdmin, creditoController.validarTodosCasos);
 

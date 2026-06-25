@@ -1,4 +1,4 @@
-const { pool } = require('../config');
+const { pool } = require('../../config');
 
 const getMisPrestamos = async (req, res) => {
   try {
@@ -64,10 +64,10 @@ const solicitarPrestamo = async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO prestamos 
-       (usuario_id, cuenta_id, tipo, monto_solicitado, monto_aprobado, tasa_interes, plazo_meses, cuota_mensual, estado)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pendiente')
+       (usuario_id, cuenta_id, tipo, monto_solicitado, tasa_interes, plazo_meses, cuota_mensual, estado, monto_aprobado)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'pendiente', 0)
        RETURNING id, tipo, monto_solicitado, tasa_interes, plazo_meses, cuota_mensual, estado`,
-      [req.user.id, cuenta_id, tipo, monto_solicitado, 0, tasa_interes, plazo_meses, cuota_mensual.toFixed(2)]
+      [req.user.id, cuenta_id, tipo, monto_solicitado, tasa_interes, plazo_meses, cuota_mensual.toFixed(2)]
     );
 
     await pool.query(
@@ -82,7 +82,7 @@ const solicitarPrestamo = async (req, res) => {
       cuota_estimada: parseFloat(cuota_mensual.toFixed(2)),
     });
   } catch (err) {
-    console.error(err.message);
+    console.error('Error en solicitarPrestamo:', err.message);
     res.status(500).json({ error: 'Error al solicitar préstamo.' });
   }
 };
@@ -152,7 +152,7 @@ const aprobarPrestamo = async (req, res) => {
     res.json({ message: 'Préstamo aprobado y desembolsado exitosamente.' });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error(err.message);
+    console.error('Error en aprobarPrestamo:', err.message);
     res.status(500).json({ error: 'Error al aprobar préstamo.' });
   } finally {
     client.release();
