@@ -58,43 +58,40 @@ export default function CuentasPage() {
     }
   };
 
-const exportarPDF = async () => {
-  if (!selected) return;
-  setExportando(true);
-  try {
-    const token = localStorage.getItem('bf_token');
-    const url = `https://banco-falabella-backend-4309.onrender.com/api/exportar/movimientos-pdf?cuenta_id=${selected.id}&token=${token}`;
-    console.log('📄 Exportando PDF desde:', url);
-    
-    // Usar fetch para descargar el PDF
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
+  // ============================================================
+  // EXPORTAR PDF - CORREGIDO
+  // ============================================================
+  const exportarPDF = async () => {
+    if (!selected) return;
+    setExportando(true);
+    try {
+      const token = localStorage.getItem('bf_token');
+      const url = `https://banco-falabella-backend-4309.onrender.com/api/exportar/movimientos-pdf?cuenta_id=${selected.id}&token=${token}`;
+      console.log('📄 Exportando PDF desde:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error('Error al generar el PDF');
       }
-    });
 
-    if (!response.ok) {
-      throw new Error('Error al generar el PDF');
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `movimientos_cuenta_${selected.numero_cuenta}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+    } catch (err) {
+      console.error('Error al exportar PDF:', err);
+      alert('❌ Error al exportar el PDF. Intenta nuevamente.');
+    } finally {
+      setExportando(false);
     }
-
-    const blob = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = `movimientos_cuenta_${selected.numero_cuenta}_${new Date().toISOString().slice(0, 10)}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl);
-    
-  } catch (err) {
-    console.error('Error al exportar PDF:', err);
-    alert('❌ Error al exportar el PDF. Intenta nuevamente.');
-  } finally {
-    setExportando(false);
-  }
-};
+  };
 
   const getTipoLabel = (tipo) => {
     const labels = {

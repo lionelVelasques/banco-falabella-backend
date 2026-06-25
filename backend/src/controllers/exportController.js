@@ -5,12 +5,14 @@ const config = require('../../config');
 
 const exportarMovimientosPDF = async (req, res) => {
   try {
+    // Obtener token desde query o headers
     const token = req.query.token || req.headers.authorization?.split(' ')[1];
     
     if (!token) {
       return res.status(401).json({ error: 'Token no proporcionado' });
     }
 
+    // Verificar token
     let decoded;
     try {
       decoded = jwt.verify(token, config.jwt.secret);
@@ -24,6 +26,7 @@ const exportarMovimientosPDF = async (req, res) => {
       return res.status(400).json({ error: 'ID de cuenta no proporcionado' });
     }
 
+    // Verificar cuenta
     const cuentaCheck = await pool.query(
       'SELECT id, numero_cuenta, tipo, moneda, saldo, usuario_id FROM cuentas WHERE id = $1',
       [cuenta_id]
@@ -35,6 +38,7 @@ const exportarMovimientosPDF = async (req, res) => {
 
     const cuenta = cuentaCheck.rows[0];
 
+    // Verificar propiedad
     if (cuenta.usuario_id !== decoded.id) {
       const userCheck = await pool.query(
         'SELECT tipo_usuario FROM usuarios WHERE id = $1',
@@ -45,6 +49,7 @@ const exportarMovimientosPDF = async (req, res) => {
       }
     }
 
+    // Obtener transacciones
     const result = await pool.query(
       `SELECT t.id, t.tipo, t.monto, t.moneda, t.descripcion, t.referencia, t.created_at,
               co.numero_cuenta AS cuenta_origen, cd.numero_cuenta AS cuenta_destino
@@ -60,6 +65,7 @@ const exportarMovimientosPDF = async (req, res) => {
 
     const movimientos = result.rows;
 
+    // Crear PDF
     const doc = new PDFDocument({
       size: 'A4',
       margins: { top: 50, bottom: 50, left: 50, right: 50 }
@@ -71,7 +77,9 @@ const exportarMovimientosPDF = async (req, res) => {
     
     doc.pipe(res);
 
+    // ============================================================
     // ENCABEZADO
+    // ============================================================
     doc.fontSize(22)
        .fillColor('#00A550')
        .text('Banco Falabella', { align: 'center' })
@@ -93,7 +101,9 @@ const exportarMovimientosPDF = async (req, res) => {
     doc.strokeColor('#00A550').lineWidth(2).moveTo(50, doc.y).lineTo(550, doc.y).stroke();
     doc.moveDown(0.5);
 
-    // TABLA
+    // ============================================================
+    // TABLA DE MOVIMIENTOS
+    // ============================================================
     const tableTop = doc.y;
     const tableHeight = 22;
 
@@ -158,6 +168,9 @@ const exportarMovimientosPDF = async (req, res) => {
       y += 22;
     });
 
+    // ============================================================
+    // PIE DE PÁGINA
+    // ============================================================
     doc.moveDown(2);
     doc.strokeColor('#00A550').lineWidth(1).moveTo(50, doc.y).lineTo(550, doc.y).stroke();
 

@@ -1,4 +1,4 @@
-const { pool } = require('../config');
+const { pool } = require('../../config');
 
 const gastosPorMes = async (req, res) => {
   try {
@@ -24,6 +24,7 @@ const gastosPorMes = async (req, res) => {
     );
     res.json({ datos: result.rows });
   } catch (err) {
+    console.error('Error en gastosPorMes:', err.message);
     res.status(500).json({ error: 'Error al obtener analytics.' });
   }
 };
@@ -37,6 +38,7 @@ const resumenFinanciero = async (req, res) => {
     const ids = cuentas.rows.map(c => c.id);
     if (ids.length === 0) return res.json({ resumen: {} });
 
+    // Ingresos del mes
     const ingresos = await pool.query(
       `SELECT COALESCE(SUM(monto), 0) AS total FROM transacciones
        WHERE cuenta_destino_id = ANY($1)
@@ -45,6 +47,7 @@ const resumenFinanciero = async (req, res) => {
       [ids]
     );
 
+    // Gastos del mes
     const gastos = await pool.query(
       `SELECT COALESCE(SUM(monto), 0) AS total FROM transacciones
        WHERE cuenta_origen_id = ANY($1)
@@ -53,23 +56,13 @@ const resumenFinanciero = async (req, res) => {
       [ids]
     );
 
+    // Transacciones por tipo
     const porTipo = await pool.query(
       `SELECT tipo, COUNT(*) AS cantidad, SUM(monto) AS total
        FROM transacciones
        WHERE (cuenta_origen_id = ANY($1) OR cuenta_destino_id = ANY($1))
          AND created_at >= NOW() - INTERVAL '3 months'
        GROUP BY tipo`,
-      [ids]
-    );
-
-    const evolucion = await pool.query(
-      `SELECT 
-         TO_CHAR(created_at, 'YYYY-MM') AS mes,
-         SUM(CASE WHEN cuenta_destino_id = ANY($1) THEN monto ELSE 0 END) -
-         SUM(CASE WHEN cuenta_origen_id = ANY($1) THEN monto ELSE 0 END) AS variacion
-       FROM transacciones
-       WHERE created_at >= NOW() - INTERVAL '6 months'
-       GROUP BY mes ORDER BY mes ASC`,
       [ids]
     );
 
@@ -80,10 +73,10 @@ const resumenFinanciero = async (req, res) => {
         balance_mes: parseFloat(ingresos.rows[0].total) - parseFloat(gastos.rows[0].total),
       },
       por_tipo: porTipo.rows,
-      evolucion: evolucion.rows,
+      evolucion: []
     });
   } catch (err) {
-    console.error(err.message);
+    console.error('Error en resumenFinanciero:', err.message);
     res.status(500).json({ error: 'Error al obtener resumen financiero.' });
   }
 };

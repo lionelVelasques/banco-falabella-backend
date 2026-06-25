@@ -41,7 +41,7 @@ router.get('/user/transactions/:cuenta_id', userController.getTransactions);
 // ----- CUENTAS -----
 router.get('/cuentas', cuentaController.getMisCuentas);
 router.get('/cuentas/:id/movimientos', cuentaController.getMovimientos);
-router.get('/dashboard', cuentaController.getDashboard);
+router.get('/dashboard', cuentaController.getDashboard); // ← RUTA DEL DASHBOARD
 
 // ----- TRANSFERENCIAS -----
 router.post('/transferencias', transferenciaController.realizarTransferencia);
