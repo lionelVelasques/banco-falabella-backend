@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import { api } from '../services/authService';
-import { authService } from '../services/authService';
+import { api, authService } from '../services/authService';
 
 const fmt = (n) => `S/ ${parseFloat(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}`;
 
@@ -16,6 +15,7 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         setError(null);
+        console.log('📊 Cargando dashboard...');
         const response = await api.get('/dashboard');
         console.log('📊 Datos del dashboard:', response);
         setData(response);
@@ -70,6 +70,7 @@ export default function DashboardPage() {
 
   return (
     <Layout>
+      {/* Encabezado */}
       <div style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, color: '#111827', marginBottom: 4 }}>
           Hola, {usuario?.nombre || 'Usuario'} 👋
@@ -79,6 +80,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {/* Saldo total */}
       <div className="saldo-card" style={{ marginBottom: 28 }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <p style={{ fontSize: 14, opacity: 0.8, marginBottom: 4 }}>Saldo total en cuentas</p>
@@ -91,6 +93,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* KPIs */}
       <div className="grid-3" style={{ marginBottom: 28 }}>
         <div className="kpi-card">
           <div className="flex-between">
@@ -121,6 +124,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Cuentas */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 28 }}>
         <div>
           <h3 style={{ fontWeight: 600, marginBottom: 14, fontSize: 16, color: '#111827' }}>
@@ -157,6 +161,7 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* Tarjetas CMR */}
         <div>
           <h3 style={{ fontWeight: 600, marginBottom: 14, fontSize: 16, color: '#111827' }}>
             💎 Tarjetas CMR
@@ -191,6 +196,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Últimos movimientos */}
       <h3 style={{ fontWeight: 600, marginBottom: 14, fontSize: 16, color: '#111827' }}>
         📋 Últimos movimientos
       </h3>
