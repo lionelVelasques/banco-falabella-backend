@@ -1,7 +1,6 @@
 {
   "buildCommand": "npx vite build",
-  "installCommand": "npm install --no-optional",
+  "installCommand": "npm install",
   "framework": "vite",
-  "outputDirectory": "dist",
-  "rootDirectory": "frontend"
+  "outputDirectory": "dist"
 }
