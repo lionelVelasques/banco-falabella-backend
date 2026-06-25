@@ -11,6 +11,7 @@ const authMiddleware = async (req, res, next) => {
         
         const decoded = jwt.verify(token, config.jwt.secret);
         
+        // Usar pool con SSL configurado
         const result = await pool.query(
             'SELECT id, email, tipo_usuario, activo FROM usuarios WHERE id = $1',
             [decoded.id]
