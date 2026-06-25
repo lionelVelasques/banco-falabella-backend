@@ -15,40 +15,34 @@ const config = {
 // CONFIGURACIÓN DE LA BASE DE DATOS CON SSL
 // ============================================================
 
-// Verificar si estamos en producción
-const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
-
-// Crear la configuración del pool
-let poolConfig = {};
-
+// Usar DATABASE_URL si está disponible (producción)
 if (process.env.DATABASE_URL) {
     console.log('🔵 Usando DATABASE_URL para conexión Pool');
-    poolConfig = {
-        connectionString: process.env.DATABASE_URL,
+    
+    // Asegurar que la URL tenga sslmode=require
+    let databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl.includes('sslmode=require') && !databaseUrl.includes('sslmode=')) {
+        databaseUrl = databaseUrl + (databaseUrl.includes('?') ? '&' : '?') + 'sslmode=require';
+    }
+    
+    var pool = new Pool({
+        connectionString: databaseUrl,
         ssl: {
             rejectUnauthorized: false
         }
-    };
+    });
 } else {
+    // Desarrollo local
     console.log('🔵 Usando variables individuales para conexión local');
-    poolConfig = {
+    var pool = new Pool({
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
         user: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
         database: process.env.DB_NAME || 'db_banco_falabella',
-    };
-    
-    // En producción local con SSL
-    if (isProduction) {
-        poolConfig.ssl = {
-            rejectUnauthorized: false
-        };
-    }
+        ssl: false
+    });
 }
-
-// Crear el pool de conexiones
-const pool = new Pool(poolConfig);
 
 // Probar la conexión al iniciar
 pool.connect((err, client, release) => {
