@@ -24,7 +24,8 @@ const corsOptions = {
     origin: [
         'http://localhost:3000',
         'http://localhost:5173',
-        'https://tu-dominio-frontend.com'
+        'https://banco-falabella-backend.vercel.app',
+        'https://banco-falabella-backend-git-main-lionels-projects-05148647.vercel.app'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
