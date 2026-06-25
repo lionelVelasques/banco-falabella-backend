@@ -15,32 +15,27 @@ const config = {
 // CONFIGURACIÓN DE LA BASE DE DATOS CON SSL
 // ============================================================
 
-// Usar DATABASE_URL si está disponible (producción)
+let pool;
+
 if (process.env.DATABASE_URL) {
     console.log('🔵 Usando DATABASE_URL para conexión Pool');
-    
-    // Asegurar que la URL tenga sslmode=require
-    let databaseUrl = process.env.DATABASE_URL;
-    if (!databaseUrl.includes('sslmode=require') && !databaseUrl.includes('sslmode=')) {
-        databaseUrl = databaseUrl + (databaseUrl.includes('?') ? '&' : '?') + 'sslmode=require';
-    }
-    
-    var pool = new Pool({
-        connectionString: databaseUrl,
+    // En producción (Render), usar la URL completa con SSL
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
         ssl: {
-            rejectUnauthorized: false
+            rejectUnauthorized: false // Necesario para Neon
         }
     });
 } else {
-    // Desarrollo local
     console.log('🔵 Usando variables individuales para conexión local');
-    var pool = new Pool({
+    // En desarrollo local, usar variables separadas
+    pool = new Pool({
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
         user: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
         database: process.env.DB_NAME || 'db_banco_falabella',
-        ssl: false
+        ssl: false // Local no necesita SSL
     });
 }
 

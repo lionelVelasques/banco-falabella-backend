@@ -10,17 +10,19 @@ const routes = require('./routes/index');
 dotenv.config();
 
 const app = express();
-app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 // ============================================================
 // CONFIGURACIÓN DE SEGURIDAD
 // ============================================================
 
+// Trust proxy para rate limiting en Render
+app.set('trust proxy', 1);
+
 // 1. Helmet - Cabeceras de seguridad
 app.use(helmet());
 
-// 2. CORS - PERMITIR TODOS LOS ORÍGENES (para pruebas)
+// 2. CORS - Permitir todos los orígenes para pruebas
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

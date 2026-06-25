@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config');
-const { pool } = require('../config');
+const config = require('../../config');
+const { pool } = require('../../config');
+
+// ============================================================
+// MIDDLEWARE DE AUTENTICACIÓN
+// ============================================================
 
 const authMiddleware = async (req, res, next) => {
     try {
@@ -29,16 +33,20 @@ const authMiddleware = async (req, res, next) => {
         };
         next();
     } catch (error) {
+        console.error('❌ Error en authMiddleware:', error.message);
         if (error.name === 'JsonWebTokenError') {
             return res.status(401).json({ message: 'Token inválido' });
         }
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({ message: 'Token expirado' });
         }
-        console.error('Error en authMiddleware:', error);
         res.status(500).json({ message: 'Error de autenticación', error: error.message });
     }
 };
+
+// ============================================================
+// MIDDLEWARES POR ROL
+// ============================================================
 
 const isAdmin = (req, res, next) => {
     if (req.user.tipo_usuario !== 'admin') {
