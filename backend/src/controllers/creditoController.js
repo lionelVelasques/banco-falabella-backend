@@ -1,4 +1,4 @@
-const { pool } = require('../config');
+const { pool } = require('../../config');
 
 const calcularCuotaMensual = (monto, tea, plazoMeses) => {
     const tasaMensual = Math.pow(1 + tea / 100, 1 / 12) - 1;
@@ -9,6 +9,7 @@ const calcularCuotaMensual = (monto, tea, plazoMeses) => {
 
 const solicitarCredito = async (req, res) => {
     console.log('🔵 Solicitud recibida:', req.body);
+    console.log('🔵 Usuario ID:', req.user.id);
     
     const { 
         monto_solicitado, 
@@ -29,9 +30,7 @@ const solicitarCredito = async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // ============================================================
-        // CORREGIDO: Ya no usa 'estado', usa 'activo'
-        // ============================================================
+        // Verificar usuario
         const usuario = await client.query(
             'SELECT id, fecha_nacimiento, email, activo FROM usuarios WHERE id = $1',
             [req.user.id]
@@ -89,6 +88,7 @@ const solicitarCredito = async (req, res) => {
         let scoring = 60;
         let razones = [];
 
+        // Factor 1: Edad
         if (edad >= 25 && edad <= 50) {
             scoring += 15;
         } else if (edad > 50 && edad <= 65) {
@@ -98,6 +98,7 @@ const solicitarCredito = async (req, res) => {
             razones.push('Edad avanzada');
         }
 
+        // Factor 2: RDS (Ratio Deuda Servicio)
         const rds = (parseFloat(deuda_mensual || 0) / parseFloat(ingreso_mensual || 1)) * 100;
         if (rds < 20) {
             scoring += 15;
@@ -111,6 +112,7 @@ const solicitarCredito = async (req, res) => {
             razones.push('RDS muy elevado (>50%)');
         }
 
+        // Factor 3: Monto vs Ingreso
         const montoAnual = parseFloat(monto_solicitado);
         const ingresoAnual = parseFloat(ingreso_mensual || 0) * 12;
         if (ingresoAnual > 0) {
@@ -395,12 +397,6 @@ const aprobarCredito = async (req, res) => {
                 
                 fechaCuota.setMonth(fechaCuota.getMonth() + 1);
             }
-
-            await client.query(
-                `INSERT INTO cartera_mora (prestamo_id, usuario_id, saldo_vencido)
-                 VALUES ($1, $2, 0)`,
-                [prestamoId, s.usuario_id]
-            );
 
             await client.query(
                 `INSERT INTO notificaciones (usuario_id, titulo, mensaje, tipo)
