@@ -15,41 +15,49 @@ const config = {
 // CONFIGURACIÓN DE LA BASE DE DATOS CON SSL
 // ============================================================
 
-// Usar DATABASE_URL si está disponible (producción)
+// Verificar si estamos en producción
+const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+
+// Crear la configuración del pool
+let poolConfig = {};
+
 if (process.env.DATABASE_URL) {
     console.log('🔵 Usando DATABASE_URL para conexión Pool');
-    
-    // Parsear la URL para asegurar SSL
-    const databaseUrl = process.env.DATABASE_URL;
-    
-    // Asegurar que la URL tenga sslmode=require
-    let finalUrl = databaseUrl;
-    if (!databaseUrl.includes('sslmode=require') && !databaseUrl.includes('sslmode=')) {
-        finalUrl = databaseUrl + (databaseUrl.includes('?') ? '&' : '?') + 'sslmode=require';
-    }
-    
-    var pool = new Pool({
-        connectionString: finalUrl,
+    poolConfig = {
+        connectionString: process.env.DATABASE_URL,
         ssl: {
             rejectUnauthorized: false
         }
-    });
+    };
 } else {
-    // Desarrollo local
     console.log('🔵 Usando variables individuales para conexión local');
-    var pool = new Pool({
+    poolConfig = {
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
         user: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || 'postgres',
         database: process.env.DB_NAME || 'db_banco_falabella',
-        ssl: false
-    });
+    };
+    
+    // En producción local con SSL
+    if (isProduction) {
+        poolConfig.ssl = {
+            rejectUnauthorized: false
+        };
+    }
 }
 
-// Evento de error para debugging
-pool.on('error', (err) => {
-    console.error('❌ Error inesperado en el pool de PostgreSQL:', err.message);
+// Crear el pool de conexiones
+const pool = new Pool(poolConfig);
+
+// Probar la conexión al iniciar
+pool.connect((err, client, release) => {
+    if (err) {
+        console.error('❌ Error al conectar a PostgreSQL (Pool):', err.message);
+    } else {
+        console.log('✅ Conexión a PostgreSQL establecida correctamente (Pool)');
+        release();
+    }
 });
 
 module.exports = {
