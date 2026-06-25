@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const dotenv = require('dotenv');
 const rateLimit = require('express-rate-limit');
 const { sequelize } = require('./models');
-const { pool } = require('./config');
+const { pool } = require('../config');
 const routes = require('./routes/index');
 
 dotenv.config();
@@ -19,19 +19,12 @@ const PORT = process.env.PORT || 5000;
 // 1. Helmet - Cabeceras de seguridad
 app.use(helmet());
 
-// 2. CORS restringido
-const corsOptions = {
-    origin: [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'https://banco-falabella-backend.vercel.app',
-        'https://banco-falabella-backend-git-main-lionels-projects-05148647.vercel.app'
-    ],
-    credentials: true,
+// 2. CORS - PERMITIR TODOS LOS ORÍGENES (para pruebas)
+app.use(cors({
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions));
+}));
 
 // 3. Rate limiting global
 const globalLimiter = rateLimit({
