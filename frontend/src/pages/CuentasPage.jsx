@@ -66,13 +66,20 @@ const exportarPDF = async () => {
   setExportando(true);
   try {
     const token = localStorage.getItem('bf_token');
-    // ✅ CORREGIDO: Usar la URL de Render
+    // ✅ URL CORRECTA - Render
     const url = `https://banco-falabella-backend-4309.onrender.com/api/exportar/movimientos-pdf?cuenta_id=${selected.id}&token=${token}`;
     console.log('📄 Exportando PDF desde:', url);
     
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Error del servidor:', errorText);
       throw new Error('Error al generar el PDF');
     }
 
@@ -87,7 +94,7 @@ const exportarPDF = async () => {
     window.URL.revokeObjectURL(downloadUrl);
     
   } catch (err) {
-    console.error('Error al exportar PDF:', err);
+    console.error('❌ Error al exportar PDF:', err);
     alert('❌ Error al exportar el PDF. Intenta nuevamente.');
   } finally {
     setExportando(false);
