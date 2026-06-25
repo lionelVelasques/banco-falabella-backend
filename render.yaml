@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: banco-falabella-backend
+    runtime: node
+    plan: free
+    region: ohio
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        value: banco_falabella_secret_key_2026_prod
+      - key: ENCRYPTION_KEY
+        value: banco_falabella_clave_32_caracteres
+      - key: DB_HOST
+        value: ep-super-meadow-atll0owl.c-9.us-east-1.aws.neon.tech
+      - key: DB_PORT
+        value: 5432
+      - key: DB_USER
+        value: neondb_owner
+      - key: DB_PASSWORD
+        value: npg_zf9bVwOPnkN4
+      - key: DB_NAME
+        value: neondb
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_zf9bVwOPnkN4@ep-super-meadow-atll0owl.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require
