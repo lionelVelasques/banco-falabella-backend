@@ -91,9 +91,9 @@ export const authService = {
     },
 
     logout() {
-        removeAuth();
-        window.location.href = '/login';
-    },
+    removeAuth();
+    window.location.replace('/login'); // ⬅️ replace evita que se guarde en el historial
+  },
 
     getUsuario() {
         return getUsuario();

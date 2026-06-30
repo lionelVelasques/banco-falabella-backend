@@ -1,11 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AdminRoute } from './components/AdminRoute';
+import AdminRoute from './components/AdminRoute';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import AdminLoginPage from './pages/AdminLoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminRegisterPage from './pages/AdminRegisterPage';
 import RecuperarPasswordPage from './pages/RecuperarPasswordPage';
+
+// Páginas de clientes
 import DashboardPage from './pages/DashboardPage';
 import CuentasPage from './pages/CuentasPage';
 import TransferenciasPage from './pages/TransferenciasPage';
@@ -16,42 +20,75 @@ import PagarServiciosPage from './pages/PagarServiciosPage';
 import SolicitarCreditoPage from './pages/SolicitarCreditoPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import PerfilPage from './pages/PerfilPage';
+
+// Páginas de administrador
 import AdminCreditosPage from './pages/AdminCreditosPage';
 import AdminPrestamosPage from './pages/AdminPrestamosPage';
 import AdminRecuperacionesPage from './pages/AdminRecuperacionesPage';
 import ValidarCasosPage from './pages/ValidarCasosPage';
 
-export default function App() {
+import './index.css';
+
+function App() {
   return (
-    <BrowserRouter>
+    <Router>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+        }}
+      />
       <Routes>
-        {/* Públicas */}
+        {/* ============================================================
+            RUTAS PÚBLICAS
+            ============================================================ */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/recuperar-password" element={<RecuperarPasswordPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/register" element={<AdminRegisterPage />} />
 
-        {/* Protegidas - Cliente */}
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/cuentas" element={<ProtectedRoute><CuentasPage /></ProtectedRoute>} />
-        <Route path="/transferencias" element={<ProtectedRoute><TransferenciasPage /></ProtectedRoute>} />
-        <Route path="/tarjeta-cmr" element={<ProtectedRoute><TarjetaCMRPage /></ProtectedRoute>} />
-        <Route path="/prestamos" element={<ProtectedRoute><PrestamosPage /></ProtectedRoute>} />
-        <Route path="/pagar-prestamo" element={<ProtectedRoute><PagarPrestamoPage /></ProtectedRoute>} />
-        <Route path="/pagar-servicios" element={<ProtectedRoute><PagarServiciosPage /></ProtectedRoute>} />
-        <Route path="/solicitar-credito" element={<ProtectedRoute><SolicitarCreditoPage /></ProtectedRoute>} />
-        <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-        <Route path="/perfil" element={<ProtectedRoute><PerfilPage /></ProtectedRoute>} />
+        {/* ============================================================
+            RUTAS PROTEGIDAS PARA CLIENTES
+            ============================================================ */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/cuentas" element={<CuentasPage />} />
+          <Route path="/transferencias" element={<TransferenciasPage />} />
+          <Route path="/tarjeta-cmr" element={<TarjetaCMRPage />} />
+          <Route path="/prestamos" element={<PrestamosPage />} />
+          <Route path="/pagar-prestamo" element={<PagarPrestamoPage />} />
+          <Route path="/pagar-servicios" element={<PagarServiciosPage />} />
+          <Route path="/solicitar-credito" element={<SolicitarCreditoPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/perfil" element={<PerfilPage />} />
+        </Route>
 
-        {/* Protegidas - ADMIN */}
-        <Route path="/admin/creditos" element={<AdminRoute><AdminCreditosPage /></AdminRoute>} />
-        <Route path="/admin/prestamos" element={<AdminRoute><AdminPrestamosPage /></AdminRoute>} />
-        <Route path="/admin/recuperaciones" element={<AdminRoute><AdminRecuperacionesPage /></AdminRoute>} />
-        <Route path="/admin/validar-casos" element={<AdminRoute><ValidarCasosPage /></AdminRoute>} />
+        {/* ============================================================
+            RUTAS PROTEGIDAS PARA ADMINISTRADORES
+            ============================================================ */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin/creditos" element={<AdminCreditosPage />} />
+          <Route path="/admin/prestamos" element={<AdminPrestamosPage />} />
+          <Route path="/admin/recuperaciones" element={<AdminRecuperacionesPage />} />
+          <Route path="/admin/validar-casos" element={<ValidarCasosPage />} />
+        </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* ============================================================
+            REDIRECCIONES
+            ============================================================ */}
+        <Route path="/admin" element={<Navigate to="/admin/login" />} />
+        <Route path="/admin/dashboard" element={<Navigate to="/admin/creditos" />} />
+        <Route path="/transfer" element={<Navigate to="/transferencias" />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
+
+export default App;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import Logo from '../components/Logo';
+import { Link } from 'react-router-dom';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
