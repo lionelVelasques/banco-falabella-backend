@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "cd frontend && npm install && npm run build"
+  },
+  "dependencies": {
+    "react-hot-toast": "^2.6.0"
   }
 }
