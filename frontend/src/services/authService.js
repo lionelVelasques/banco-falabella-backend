@@ -1,20 +1,29 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://banco-falabella-backend-4309.onrender.com/api';
+// ============================================================
+// AUTH SERVICE - BANCO FALABELLA
+// ============================================================
+
+// ✅ URL CORREGIDA - Hardcodeada para producción
+const API_URL = 'https://banco-falabella-backend-4309.onrender.com/api';
 
 console.log('🔵 API_URL configurada:', API_URL);
+
+// ============================================================
+// UTILIDADES DE ALMACENAMIENTO
+// ============================================================
 
 const getToken = () => localStorage.getItem('bf_token');
 
 const setToken = (token) => {
     if (token) {
         localStorage.setItem('bf_token', token);
-        console.log('✅ Token guardado en localStorage');
+        console.log('✅ Token guardado');
     }
 };
 
 const setUsuario = (usuario) => {
     if (usuario) {
         localStorage.setItem('bf_usuario', JSON.stringify(usuario));
-        console.log('✅ Usuario guardado en localStorage');
+        console.log('✅ Usuario guardado');
     }
 };
 
@@ -41,7 +50,12 @@ const headers = () => {
     };
 };
 
+// ============================================================
+// SERVICIO DE AUTENTICACIÓN
+// ============================================================
+
 export const authService = {
+    // ----- REGISTRO -----
     async register(form) {
         try {
             console.log('📝 Registrando usuario...');
@@ -58,7 +72,7 @@ export const authService = {
                 setToken(data.token);
                 setUsuario(data.usuario);
             }
-            console.log('✅ Usuario registrado exitosamente');
+            console.log('✅ Usuario registrado');
             return data;
         } catch (error) {
             console.error('❌ Error en register:', error);
@@ -66,18 +80,25 @@ export const authService = {
         }
     },
 
+    // ----- LOGIN -----
     async login(email, contraseña) {
         try {
             console.log('🔑 Iniciando sesión...');
+            console.log('📡 Enviando a:', `${API_URL}/auth/login`);
+            
             const res = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, contraseña }),
             });
+            
+            console.log('📡 Respuesta recibida, status:', res.status);
             const data = await res.json();
+            
             if (!res.ok) {
                 throw new Error(data.message || data.error || 'Error en login');
             }
+            
             if (data.token) {
                 setToken(data.token);
                 setUsuario(data.usuario);
@@ -90,25 +111,29 @@ export const authService = {
         }
     },
 
-    // ✅ CORREGIDO: Solo limpia sesión, NO redirige
+    // ----- LOGOUT (CORREGIDO) -----
     logout() {
         removeAuth();
-        console.log('✅ Sesión cerrada. Esperando redirección desde React Router.');
+        // ✅ Usar replace para que no se guarde en el historial
+        window.location.replace('/login');
     },
 
+    // ----- OBTENER USUARIO -----
     getUsuario() {
         return getUsuario();
     },
 
+    // ----- VERIFICAR AUTENTICACIÓN -----
     isAuthenticated() {
         return isAuthenticated();
     },
 
+    // ----- OBTENER TOKEN -----
     getToken() {
         return getToken();
     },
 
-    // Funciones adicionales para perfil
+    // ----- ACTUALIZAR PERFIL -----
     async actualizarPerfil(datos) {
         try {
             const res = await fetch(`${API_URL}/auth/perfil`, {
@@ -120,7 +145,6 @@ export const authService = {
             if (!res.ok) {
                 throw new Error(data.message || 'Error al actualizar perfil');
             }
-            // Actualizar usuario en localStorage
             if (data.usuario) {
                 setUsuario(data.usuario);
             }
@@ -131,6 +155,7 @@ export const authService = {
         }
     },
 
+    // ----- CAMBIAR CONTRASEÑA -----
     async cambiarPassword(passwordActual, nuevaPassword) {
         try {
             const res = await fetch(`${API_URL}/auth/cambiar-password`, {
@@ -149,6 +174,7 @@ export const authService = {
         }
     },
 
+    // ----- RECUPERAR CONTRASEÑA -----
     async solicitarRecuperacion(email) {
         try {
             const res = await fetch(`${API_URL}/auth/recuperar-solicitar`, {
@@ -167,6 +193,10 @@ export const authService = {
         }
     },
 };
+
+// ============================================================
+// CLIENTE API
+// ============================================================
 
 export const api = {
     async request(method, path, body = null) {
@@ -190,11 +220,10 @@ export const api = {
             
             const res = await fetch(url, options);
             
+            // ✅ Manejo de 401 sin redirección manual
             if (res.status === 401) {
                 console.warn('⚠️ Sesión expirada');
                 removeAuth();
-                // ✅ Usar replace para no guardar en historial
-                window.location.replace('/login');
                 throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
             }
 
