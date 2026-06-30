@@ -43,19 +43,15 @@ function App() {
         }}
       />
       <Routes>
-        {/* ============================================================
-            RUTAS PÚBLICAS
-            ============================================================ */}
+        {/* RUTAS PÚBLICAS */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/recuperar-password" element={<RecuperarPasswordPage />} />
-        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/admin/register" element={<AdminRegisterPage />} />
 
-        {/* ============================================================
-            RUTAS PROTEGIDAS PARA CLIENTES
-            ============================================================ */}
+        {/* RUTAS PROTEGIDAS PARA CLIENTES */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/cuentas" element={<CuentasPage />} />
@@ -69,9 +65,7 @@ function App() {
           <Route path="/perfil" element={<PerfilPage />} />
         </Route>
 
-        {/* ============================================================
-            RUTAS PROTEGIDAS PARA ADMINISTRADORES
-            ============================================================ */}
+        {/* RUTAS PROTEGIDAS PARA ADMINISTRADORES */}
         <Route element={<AdminRoute />}>
           <Route path="/admin/creditos" element={<AdminCreditosPage />} />
           <Route path="/admin/prestamos" element={<AdminPrestamosPage />} />
@@ -79,12 +73,9 @@ function App() {
           <Route path="/admin/validar-casos" element={<ValidarCasosPage />} />
         </Route>
 
-        {/* ============================================================
-            REDIRECCIONES
-            ============================================================ */}
-        <Route path="/admin" element={<Navigate to="/admin/login" />} />
-        <Route path="/admin/dashboard" element={<Navigate to="/admin/creditos" />} />
-        <Route path="/transfer" element={<Navigate to="/transferencias" />} />
+        {/* REDIRECCIONES */}
+        <Route path="/admin" element={<Navigate to="/admin-login" />} />
+        <Route path="/admin/login" element={<Navigate to="/admin-login" />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
