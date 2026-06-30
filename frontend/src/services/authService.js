@@ -90,10 +90,11 @@ export const authService = {
         }
     },
 
+    // ✅ CORREGIDO: Solo limpia sesión, NO redirige
     logout() {
-    removeAuth();
-    window.location.replace('/login'); // ⬅️ replace evita que se guarde en el historial
-  },
+        removeAuth();
+        console.log('✅ Sesión cerrada. Esperando redirección desde React Router.');
+    },
 
     getUsuario() {
         return getUsuario();
@@ -105,6 +106,65 @@ export const authService = {
 
     getToken() {
         return getToken();
+    },
+
+    // Funciones adicionales para perfil
+    async actualizarPerfil(datos) {
+        try {
+            const res = await fetch(`${API_URL}/auth/perfil`, {
+                method: 'PUT',
+                headers: headers(),
+                body: JSON.stringify(datos),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al actualizar perfil');
+            }
+            // Actualizar usuario en localStorage
+            if (data.usuario) {
+                setUsuario(data.usuario);
+            }
+            return data;
+        } catch (error) {
+            console.error('❌ Error en actualizarPerfil:', error);
+            throw error;
+        }
+    },
+
+    async cambiarPassword(passwordActual, nuevaPassword) {
+        try {
+            const res = await fetch(`${API_URL}/auth/cambiar-password`, {
+                method: 'POST',
+                headers: headers(),
+                body: JSON.stringify({ passwordActual, nuevaPassword }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al cambiar contraseña');
+            }
+            return data;
+        } catch (error) {
+            console.error('❌ Error en cambiarPassword:', error);
+            throw error;
+        }
+    },
+
+    async solicitarRecuperacion(email) {
+        try {
+            const res = await fetch(`${API_URL}/auth/recuperar-solicitar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al solicitar recuperación');
+            }
+            return data;
+        } catch (error) {
+            console.error('❌ Error en solicitarRecuperacion:', error);
+            throw error;
+        }
     },
 };
 
@@ -133,7 +193,8 @@ export const api = {
             if (res.status === 401) {
                 console.warn('⚠️ Sesión expirada');
                 removeAuth();
-                window.location.href = '/login';
+                // ✅ Usar replace para no guardar en historial
+                window.location.replace('/login');
                 throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
             }
 

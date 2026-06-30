@@ -32,7 +32,8 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     authService.logout();
-    navigate('/login');
+    // ✅ Usar replace para que no se guarde en el historial
+    navigate('/login', { replace: true });
   };
 
   if (!isAuthenticated) return null;
@@ -61,9 +62,6 @@ export default function Sidebar() {
 
       <nav style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
         {isAdmin ? (
-          // ============================================================
-          // MENÚ EXCLUSIVO PARA ADMINISTRADORES
-          // ============================================================
           <>
             <div style={{
               color: '#FF6B35',
@@ -101,7 +99,6 @@ export default function Sidebar() {
               </NavLink>
             ))}
 
-            {/* Separador */}
             <div style={{
               borderTop: '1px solid #1F2937',
               margin: '16px 0 12px',
@@ -115,7 +112,6 @@ export default function Sidebar() {
               📱 Acceso Rápido
             </div>
 
-            {/* Enlaces rápidos para admin (dashboard de cliente) */}
             <NavLink
               to="/dashboard"
               style={({ isActive }) => ({
@@ -139,9 +135,6 @@ export default function Sidebar() {
             </NavLink>
           </>
         ) : (
-          // ============================================================
-          // MENÚ EXCLUSIVO PARA CLIENTES
-          // ============================================================
           <>
             {clientNav.map(item => (
               <NavLink

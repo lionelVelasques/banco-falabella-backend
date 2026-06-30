@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import Logo from '../components/Logo';
-import { Link } from 'react-router-dom';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -17,7 +16,6 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       const data = await authService.login(email, contraseña);
-      // Verificar que sea administrador
       if (data.usuario?.tipo_usuario !== 'admin') {
         setError('❌ Acceso denegado. Esta página es solo para administradores.');
         authService.logout();
@@ -173,12 +171,13 @@ export default function AdminLoginPage() {
           <div style={{ textAlign: 'center', marginTop: 16 }}>
             <p style={{ color: '#6B7280', fontSize: 13 }}>
               ¿Eres cliente?{' '}
-              <a 
-                href="/login" 
+              {/* ✅ CORREGIDO: Usar Link en lugar de <a> */}
+              <Link 
+                to="/login" 
                 style={{ color: '#00A550', fontWeight: 600, textDecoration: 'none' }}
               >
                 Ir a Banca Digital
-              </a>
+              </Link>
             </p>
           </div>
         </div>
