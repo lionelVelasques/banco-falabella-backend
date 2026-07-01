@@ -43,7 +43,7 @@ function App() {
         }}
       />
       <Routes>
-        {/* RUTAS PÚBLICAS */}
+        {/* ========== RUTAS PÚBLICAS ========== */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -51,7 +51,7 @@ function App() {
         <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/admin/register" element={<AdminRegisterPage />} />
 
-        {/* RUTAS PROTEGIDAS PARA CLIENTES */}
+        {/* ========== RUTAS DE CLIENTES (PROTEGIDAS) ========== */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/cuentas" element={<CuentasPage />} />
@@ -65,7 +65,7 @@ function App() {
           <Route path="/perfil" element={<PerfilPage />} />
         </Route>
 
-        {/* RUTAS PROTEGIDAS PARA ADMINISTRADORES */}
+        {/* ========== RUTAS DE ADMINISTRADORES (PROTEGIDAS) ========== */}
         <Route element={<AdminRoute />}>
           <Route path="/admin/creditos" element={<AdminCreditosPage />} />
           <Route path="/admin/prestamos" element={<AdminPrestamosPage />} />
@@ -73,7 +73,7 @@ function App() {
           <Route path="/admin/validar-casos" element={<ValidarCasosPage />} />
         </Route>
 
-        {/* REDIRECCIONES */}
+        {/* ========== REDIRECCIONES ========== */}
         <Route path="/admin" element={<Navigate to="/admin-login" />} />
         <Route path="/admin/login" element={<Navigate to="/admin-login" />} />
         <Route path="*" element={<Navigate to="/" />} />
